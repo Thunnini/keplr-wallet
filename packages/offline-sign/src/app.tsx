@@ -213,6 +213,69 @@ export const App: FunctionComponent = observer(() => {
           >
             Simulate
           </button>
+          <br />
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+
+              const input = document.createElement("input");
+
+              input.type = "file";
+              input.accept = ".json";
+
+              input.onchange = (e) => {
+                if (e.target) {
+                  const inputElem = e.target as HTMLInputElement;
+                  if (inputElem.files && inputElem.files.length > 0) {
+                    const file = inputElem.files[0];
+
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      if (typeof reader.result === "string") {
+                        const tx = JSON.parse(reader.result);
+
+                        const chainInfo = chainStore.getChain(chainId);
+                        const axiosInstance = Axios.create({
+                          ...{
+                            baseURL: chainInfo.rest,
+                          },
+                          ...chainInfo.restConfig,
+                        });
+
+                        axiosInstance
+                          .post("/cosmos/tx/v1beta1/txs", {
+                            tx_bytes: tx.txBytes,
+                            mode: "BROADCAST_MODE_SYNC",
+                          })
+                          .then((r) => {
+                            console.log(r);
+
+                            const code = r?.data?.tx_response?.code;
+
+                            if (code) {
+                              console.log(`Tx failed code: ${code}`);
+                            }
+
+                            const txHash = r?.data?.tx_response?.txhash;
+                            if (txHash) {
+                              console.log(`Tx hash: ${txHash}`);
+                            } else {
+                              console.log("Tx maybe failed");
+                            }
+                          });
+                      }
+                    };
+
+                    reader.readAsText(file);
+                  }
+                }
+              };
+
+              input.click();
+            }}
+          >
+            Broadcast
+          </button>
         </div>
       ) : null}
     </div>
