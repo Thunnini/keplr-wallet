@@ -2,10 +2,16 @@ import React, { FunctionComponent, useMemo } from "react";
 import { observer } from "mobx-react-lite";
 import { useStore } from "./stores";
 import { Coin, DecUtils, Int } from "@keplr-wallet/unit";
-import { StdSignDoc } from "@cosmjs/launchpad";
+import { serializeSignDoc, StdSignDoc } from "@cosmjs/launchpad";
 import { Buffer } from "buffer/";
+import { PubKeySecp256k1 } from "@keplr-wallet/crypto";
+import { Bech32Address } from "@keplr-wallet/cosmos";
+import { TxRaw } from "@keplr-wallet/proto-types/cosmos/tx/v1beta1/tx";
+import Axios from "axios";
 
-export const TargetAddress = "cosmos1vv6hruquzpty4xpks9znkw8gys5x4nsnqw9f4k";
+export const Admins = ["osmo1vv6hruquzpty4xpks9znkw8gys5x4nsng4kery"];
+
+export const TargetAddress = "osmo1vv6hruquzpty4xpks9znkw8gys5x4nsng4kery";
 export const TargetMemo = "";
 export const AddressToAssets: {
   [address: string]:
@@ -14,10 +20,10 @@ export const AddressToAssets: {
       }
     | undefined;
 } = {
-  cosmos1vv6hruquzpty4xpks9znkw8gys5x4nsnqw9f4k: {
+  osmo1vv6hruquzpty4xpks9znkw8gys5x4nsng4kery: {
     assets: [
       {
-        denom: "uatom",
+        denom: "uosmo",
         amount: new Int(10000),
       },
     ],
@@ -32,6 +38,10 @@ export const App: FunctionComponent = observer(() => {
 
   const needToSendAssets = useMemo(() => {
     return AddressToAssets[account.bech32Address];
+  }, [account.bech32Address]);
+
+  const isAdmin = useMemo(() => {
+    return Admins.find((admin) => admin === account.bech32Address) != null;
   }, [account.bech32Address]);
 
   return (
@@ -75,15 +85,15 @@ export const App: FunctionComponent = observer(() => {
                   preferNoSetMemo: true,
                 },
                 (txBytes: Uint8Array, signDoc: StdSignDoc) => {
-                  console.log(Buffer.from(txBytes).toString("base64"));
-                  console.log(signDoc);
-
                   const a = document.createElement("a");
                   const file = new Blob(
                     [
                       JSON.stringify(
                         {
                           txBytes: Buffer.from(txBytes).toString("base64"),
+                          pubKey: Buffer.from(account.pubKey).toString(
+                            "base64"
+                          ),
                           signDoc,
                         },
                         null,
@@ -107,6 +117,103 @@ export const App: FunctionComponent = observer(() => {
         >
           Sign
         </button>
+      ) : null}
+      {isAdmin ? (
+        <div>
+          <br />
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+
+              const input = document.createElement("input");
+
+              input.type = "file";
+              input.accept = ".json";
+
+              input.onchange = (e) => {
+                if (e.target) {
+                  const inputElem = e.target as HTMLInputElement;
+                  if (inputElem.files && inputElem.files.length > 0) {
+                    const file = inputElem.files[0];
+
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      if (typeof reader.result === "string") {
+                        const tx = JSON.parse(reader.result);
+
+                        const pubKey = new PubKeySecp256k1(
+                          Buffer.from(tx.pubKey, "base64")
+                        );
+                        const rawAddress = pubKey.getAddress();
+                        const bech32Address = new Bech32Address(
+                          rawAddress
+                        ).toBech32(
+                          chainStore.getChain(chainId).bech32Config
+                            .bech32PrefixAccAddr
+                        );
+
+                        console.log(
+                          `Address from public key: ${bech32Address}`
+                        );
+
+                        const txRaw = TxRaw.decode(
+                          Buffer.from(tx.txBytes, "base64")
+                        );
+
+                        const signature = txRaw.signatures[0];
+
+                        const signDocBytes = serializeSignDoc(tx.signDoc);
+
+                        if (pubKey.verify(signDocBytes, signature)) {
+                          console.log("Signature verified");
+                        } else {
+                          console.log("Invalid signature!!!");
+                        }
+
+                        const chainInfo = chainStore.getChain(chainId);
+                        const axiosInstance = Axios.create({
+                          ...{
+                            baseURL: chainInfo.rest,
+                          },
+                          ...chainInfo.restConfig,
+                        });
+
+                        axiosInstance
+                          .post("/cosmos/tx/v1beta1/simulate", {
+                            tx_bytes: tx.txBytes,
+                          })
+                          .then((r) => {
+                            console.log(r);
+
+                            console.log("List events");
+                            for (const event of r.data.result.events) {
+                              for (const attr of event.attributes) {
+                                console.log(
+                                  `Type: ${event.type}, Key: ${Buffer.from(
+                                    attr.key,
+                                    "base64"
+                                  ).toString()}, Value: ${Buffer.from(
+                                    attr.value,
+                                    "base64"
+                                  ).toString()}`
+                                );
+                              }
+                            }
+                          });
+                      }
+                    };
+
+                    reader.readAsText(file);
+                  }
+                }
+              };
+
+              input.click();
+            }}
+          >
+            Simulate
+          </button>
+        </div>
       ) : null}
     </div>
   );

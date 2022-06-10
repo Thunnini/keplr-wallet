@@ -47,7 +47,7 @@ export class AccountSetBase {
   @observable
   protected _txTypeInProgress: string = "";
 
-  protected pubKey: Uint8Array;
+  public pubKey: Uint8Array;
 
   protected hasInited = false;
 
