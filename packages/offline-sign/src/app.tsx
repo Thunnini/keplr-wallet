@@ -5,7 +5,11 @@ import { Coin, DecUtils, Int } from "@keplr-wallet/unit";
 import { serializeSignDoc, StdSignDoc } from "@cosmjs/launchpad";
 import { Buffer } from "buffer/";
 import { PubKeySecp256k1 } from "@keplr-wallet/crypto";
-import { BaseAccount, Bech32Address } from "@keplr-wallet/cosmos";
+import {
+  BaseAccount,
+  Bech32Address,
+  TendermintTxTracer,
+} from "@keplr-wallet/cosmos";
 import { TxRaw } from "@keplr-wallet/proto-types/cosmos/tx/v1beta1/tx";
 import Axios from "axios";
 
@@ -277,13 +281,34 @@ export const App: FunctionComponent = observer(() => {
 
                             if (code) {
                               console.log(`Tx failed code: ${code}`);
-                            }
-
-                            const txHash = r?.data?.tx_response?.txhash;
-                            if (txHash) {
-                              console.log(`Tx hash: ${txHash}`);
                             } else {
-                              console.log("Tx maybe failed");
+                              const txHash = r?.data?.tx_response?.txhash;
+                              if (txHash) {
+                                console.log(`Tx hash: ${txHash}`);
+                                console.log("Wait tx to be included in block");
+
+                                const txTracer = new TendermintTxTracer(
+                                  chainInfo.rpc,
+                                  "/websocket"
+                                );
+                                txTracer
+                                  .traceTx(Buffer.from(txHash, "hex"))
+                                  .then((tx) => {
+                                    if (tx.code == null || tx.code === 0) {
+                                      console.log("Tx succeeds");
+                                    } else {
+                                      console.log(`Tx failed code: ${tx.code}`);
+                                    }
+                                  })
+                                  .catch((e) => {
+                                    console.log(
+                                      `Failed to trace the tx (${txHash})`,
+                                      e
+                                    );
+                                  });
+                              } else {
+                                console.log("Tx maybe failed");
+                              }
                             }
                           });
                       }
