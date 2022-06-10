@@ -5,7 +5,7 @@ import { Coin, DecUtils, Int } from "@keplr-wallet/unit";
 import { serializeSignDoc, StdSignDoc } from "@cosmjs/launchpad";
 import { Buffer } from "buffer/";
 import { PubKeySecp256k1 } from "@keplr-wallet/crypto";
-import { Bech32Address } from "@keplr-wallet/cosmos";
+import { BaseAccount, Bech32Address } from "@keplr-wallet/cosmos";
 import { TxRaw } from "@keplr-wallet/proto-types/cosmos/tx/v1beta1/tx";
 import Axios from "axios";
 
@@ -156,20 +156,6 @@ export const App: FunctionComponent = observer(() => {
                           `Address from public key: ${bech32Address}`
                         );
 
-                        const txRaw = TxRaw.decode(
-                          Buffer.from(tx.txBytes, "base64")
-                        );
-
-                        const signature = txRaw.signatures[0];
-
-                        const signDocBytes = serializeSignDoc(tx.signDoc);
-
-                        if (pubKey.verify(signDocBytes, signature)) {
-                          console.log("Signature verified");
-                        } else {
-                          console.log("Invalid signature!!!");
-                        }
-
                         const chainInfo = chainStore.getChain(chainId);
                         const axiosInstance = Axios.create({
                           ...{
@@ -178,28 +164,65 @@ export const App: FunctionComponent = observer(() => {
                           ...chainInfo.restConfig,
                         });
 
-                        axiosInstance
-                          .post("/cosmos/tx/v1beta1/simulate", {
-                            tx_bytes: tx.txBytes,
-                          })
-                          .then((r) => {
-                            console.log(r);
+                        BaseAccount.fetchFromRest(
+                          axiosInstance,
+                          bech32Address,
+                          true
+                        ).then((account) => {
+                          console.log(
+                            `Current account's sequence: ${account
+                              .getSequence()
+                              .toString()}`
+                          );
 
-                            console.log("List events");
-                            for (const event of r.data.result.events) {
-                              for (const attr of event.attributes) {
-                                console.log(
-                                  `Type: ${event.type}, Key: ${Buffer.from(
-                                    attr.key,
-                                    "base64"
-                                  ).toString()}, Value: ${Buffer.from(
-                                    attr.value,
-                                    "base64"
-                                  ).toString()}`
-                                );
+                          const txRaw = TxRaw.decode(
+                            Buffer.from(tx.txBytes, "base64")
+                          );
+
+                          console.log(
+                            `Sequence in sign doc is: ${tx.signDoc.sequence}`
+                          );
+
+                          if (
+                            account.getSequence().toString() !==
+                            tx.signDoc.sequence
+                          ) {
+                            console.log("Sequence unmatched");
+                          }
+
+                          const signature = txRaw.signatures[0];
+
+                          const signDocBytes = serializeSignDoc(tx.signDoc);
+
+                          if (pubKey.verify(signDocBytes, signature)) {
+                            console.log("Signature verified");
+                          } else {
+                            console.log("Invalid signature!!!");
+                          }
+
+                          axiosInstance
+                            .post("/cosmos/tx/v1beta1/simulate", {
+                              tx_bytes: tx.txBytes,
+                            })
+                            .then((r) => {
+                              console.log(r);
+
+                              console.log("List events");
+                              for (const event of r.data.result.events) {
+                                for (const attr of event.attributes) {
+                                  console.log(
+                                    `Type: ${event.type}, Key: ${Buffer.from(
+                                      attr.key,
+                                      "base64"
+                                    ).toString()}, Value: ${Buffer.from(
+                                      attr.value,
+                                      "base64"
+                                    ).toString()}`
+                                  );
+                                }
                               }
-                            }
-                          });
+                            });
+                        });
                       }
                     };
 
