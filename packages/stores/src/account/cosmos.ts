@@ -265,6 +265,44 @@ export class CosmosAccountImpl {
     return false;
   }
 
+  async sendMsgsWithoutBroadcasting(
+    type: string | "unknown",
+    msgs:
+      | ProtoMsgsOrWithAminoMsgs
+      | (() => Promise<ProtoMsgsOrWithAminoMsgs> | ProtoMsgsOrWithAminoMsgs),
+    memo: string = "",
+    fee: StdFee,
+    signOptions?: KeplrSignOptions,
+    onTxBytes?: (txBytes: Uint8Array, signDoc: StdSignDoc) => void
+  ) {
+    this.base.setTxTypeInProgress(type);
+
+    try {
+      if (typeof msgs === "function") {
+        msgs = await msgs();
+      }
+
+      const result = await this.broadcastMsgsSignOnly(
+        msgs,
+        fee,
+        memo,
+        signOptions
+      );
+
+      if (onTxBytes) {
+        onTxBytes(result.txBytes, result.signDoc);
+      }
+    } catch (e) {
+      this.base.setTxTypeInProgress("");
+
+      if (this.txOpts.preTxEvents?.onBroadcastFailed) {
+        this.txOpts.preTxEvents.onBroadcastFailed(this.chainId, e);
+      }
+
+      throw e;
+    }
+  }
+
   async sendMsgs(
     type: string | "unknown",
     msgs:
@@ -376,6 +414,103 @@ export class CosmosAccountImpl {
     });
   }
 
+  protected async broadcastMsgsSignOnly(
+    msgs: ProtoMsgsOrWithAminoMsgs,
+    fee: StdFee,
+    memo: string = "",
+    signOptions?: KeplrSignOptions
+  ): Promise<{
+    txBytes: Uint8Array;
+    signDoc: StdSignDoc;
+  }> {
+    if (this.base.walletStatus !== WalletStatus.Loaded) {
+      throw new Error(`Wallet is not loaded: ${this.base.walletStatus}`);
+    }
+
+    const aminoMsgs: Msg[] = msgs.aminoMsgs;
+    const protoMsgs: Any[] = msgs.protoMsgs;
+
+    // TODO: Make proto sign doc if `aminoMsgs` is empty or null
+    if (aminoMsgs.length === 0 || protoMsgs.length === 0) {
+      throw new Error("There is no msg to send");
+    }
+
+    if (aminoMsgs.length !== protoMsgs.length) {
+      throw new Error("The length of aminoMsgs and protoMsgs are different");
+    }
+
+    const account = await BaseAccount.fetchFromRest(
+      this.instance,
+      this.base.bech32Address,
+      true
+    );
+
+    const coinType = this.chainGetter.getChain(this.chainId).bip44.coinType;
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const keplr = (await this.base.getKeplr())!;
+
+    const signDoc = makeSignDoc(
+      aminoMsgs,
+      fee,
+      this.chainId,
+      memo,
+      account.getAccountNumber().toString(),
+      account.getSequence().toString()
+    );
+
+    const signResponse = await keplr.signAmino(
+      this.chainId,
+      this.base.bech32Address,
+      signDoc,
+      signOptions
+    );
+
+    const signedTx = TxRaw.encode({
+      bodyBytes: TxBody.encode(
+        TxBody.fromPartial({
+          messages: protoMsgs,
+          memo: signResponse.signed.memo,
+        })
+      ).finish(),
+      authInfoBytes: AuthInfo.encode({
+        signerInfos: [
+          {
+            publicKey: {
+              typeUrl:
+                coinType === 60
+                  ? "/ethermint.crypto.v1.ethsecp256k1.PubKey"
+                  : "/cosmos.crypto.secp256k1.PubKey",
+              value: PubKey.encode({
+                key: Buffer.from(
+                  signResponse.signature.pub_key.value,
+                  "base64"
+                ),
+              }).finish(),
+            },
+            modeInfo: {
+              single: {
+                mode: SignMode.SIGN_MODE_LEGACY_AMINO_JSON,
+              },
+              multi: undefined,
+            },
+            sequence: signResponse.signed.sequence,
+          },
+        ],
+        fee: Fee.fromPartial({
+          amount: signResponse.signed.fee.amount as Coin[],
+          gasLimit: signResponse.signed.fee.gas,
+        }),
+      }).finish(),
+      signatures: [Buffer.from(signResponse.signature.signature, "base64")],
+    }).finish();
+
+    return {
+      txBytes: signedTx,
+      signDoc: signResponse.signed,
+    };
+  }
+
   // Return the tx hash.
   protected async broadcastMsgs(
     msgs: ProtoMsgsOrWithAminoMsgs,
@@ -483,6 +618,67 @@ export class CosmosAccountImpl {
       },
       ...chainInfo.restConfig,
     });
+  }
+
+  async sendTokensMsgTemp(
+    tokens: {
+      currency: AppCurrency;
+      amount: string;
+    }[],
+    recipient: string,
+    memo: string = "",
+    stdFee: Partial<StdFee> = {},
+    signOptions?: KeplrSignOptions,
+    onTxBytes?: (txBytes: Uint8Array, signDoc: StdSignDoc) => void
+  ) {
+    for (const token of tokens) {
+      if (new DenomHelper(token.currency.coinMinimalDenom).type !== "native") {
+        throw new Error("Only native token can be sent");
+      }
+    }
+
+    await this.sendMsgsWithoutBroadcasting(
+      "send",
+      () => {
+        const msg = {
+          type: this.msgOpts.send.native.type,
+          value: {
+            from_address: this.base.bech32Address,
+            to_address: recipient,
+            amount: tokens.map((token) => {
+              return {
+                denom: token.currency.coinMinimalDenom,
+                amount: new Dec(token.amount)
+                  .mul(DecUtils.getPrecisionDec(token.currency.coinDecimals))
+                  .truncate()
+                  .toString(),
+              };
+            }),
+          },
+        };
+
+        return {
+          aminoMsgs: [msg],
+          protoMsgs: [
+            {
+              typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+              value: MsgSend.encode({
+                fromAddress: msg.value.from_address,
+                toAddress: msg.value.to_address,
+                amount: msg.value.amount,
+              }).finish(),
+            },
+          ],
+        };
+      },
+      memo,
+      {
+        amount: stdFee.amount ?? [],
+        gas: stdFee.gas ?? "2000000",
+      },
+      signOptions,
+      onTxBytes
+    );
   }
 
   async sendIBCTransferMsg(

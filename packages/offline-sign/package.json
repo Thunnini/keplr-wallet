@@ -1,0 +1,29 @@
+{
+  "name": "offline-sign",
+  "version": "0.10.5",
+  "author": "chainapsis",
+  "license": "Apache-2.0",
+  "private": true,
+  "scripts": {
+    "serve": "parcel ./src/index.html",
+    "build": "parcel build ./src/index.html"
+  },
+  "dependencies": {
+    "@cosmjs/launchpad": "^0.24.0-alpha.25",
+    "@keplr-wallet/common": "0.10.5",
+    "@keplr-wallet/cosmos": "0.10.5",
+    "@keplr-wallet/stores": "0.10.5",
+    "@keplr-wallet/types": "0.10.5",
+    "@keplr-wallet/unit": "0.10.5",
+    "axios": "^0.21.4",
+    "buffer": "^6.0.3",
+    "mobx-react-lite": "^3.2.0",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0"
+  },
+  "devDependencies": {
+    "@types/react": "^16.14.4",
+    "@types/react-dom": "^16.9.11",
+    "parcel-bundler": "^1.12.5"
+  }
+}
