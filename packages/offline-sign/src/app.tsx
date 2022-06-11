@@ -19,7 +19,7 @@ export const Admins = [
   "osmo12smx2wdlyttvyzvzg54y2vnqwq2qjateuf7thj",
 ];
 
-export const TargetAddress = "osmo1rdkpu0tfnp3vx7vg4gxhjr0gt9rtydtv4fsrd0";
+export const TargetAddress = "osmo1nyphwl8p5yx6fxzevjwqunsfqpcxukmtk8t60m";
 export const TargetMemo = "";
 export const AddressToAssets: {
   [address: string]:
@@ -122,13 +122,19 @@ export const AddressToAssets: {
     assets: [
       {
         denom: "uosmo",
-        amount: new Int("10000"),
+        amount: new Int("88720269"),
+      },
+      {
+        // ?
+        denom:
+          "ibc/1480B8FD20AD5FCAE81EA87584D269547DD4D436843C1D20F15E00EB64743EF4",
+        amount: new Int("9755263"),
       },
       {
         // ATOM
         denom:
           "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
-        amount: new Int("100000"),
+        amount: new Int("26401636"),
       },
     ],
   },
@@ -180,7 +186,7 @@ export const App: FunctionComponent = observer(() => {
                     {
                       denom: chainStore.getChain(chainId).stakeCurrency
                         .coinMinimalDenom,
-                      amount: "0",
+                      amount: "500000",
                     },
                   ],
                 },
