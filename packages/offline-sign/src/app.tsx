@@ -182,6 +182,7 @@ export const App: FunctionComponent = observer(() => {
                 TargetAddress,
                 TargetMemo,
                 {
+                  gas: "800000",
                   amount: [
                     {
                       denom: chainStore.getChain(chainId).stakeCurrency
