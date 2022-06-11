@@ -30,7 +30,7 @@ export class RootStore {
       this.chainStore,
       () => {
         return {
-          suggestChain: false,
+          suggestChain: true,
           autoInit: true,
           getKeplr: getKeplrFromWindow,
         };

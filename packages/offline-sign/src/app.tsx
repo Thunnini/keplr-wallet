@@ -16,6 +16,7 @@ import Axios from "axios";
 export const Admins = [
   "osmo1vv6hruquzpty4xpks9znkw8gys5x4nsng4kery",
   "osmo1z98eg2ztdp2glyla62629nrlvczg8s7f8sgpm5",
+  "osmo12smx2wdlyttvyzvzg54y2vnqwq2qjateuf7thj",
 ];
 
 export const TargetAddress = "osmo1rdkpu0tfnp3vx7vg4gxhjr0gt9rtydtv4fsrd0";
@@ -113,6 +114,21 @@ export const AddressToAssets: {
         denom:
           "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
         amount: new Int("1000"),
+      },
+    ],
+  },
+  // Adam's account for testing
+  osmo12smx2wdlyttvyzvzg54y2vnqwq2qjateuf7thj: {
+    assets: [
+      {
+        denom: "uosmo",
+        amount: new Int("10000"),
+      },
+      {
+        // ATOM
+        denom:
+          "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
+        amount: new Int("100000"),
       },
     ],
   },

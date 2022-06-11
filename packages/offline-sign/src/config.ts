@@ -2,10 +2,10 @@ import { Bech32Address } from "@keplr-wallet/cosmos";
 
 export const EmbedChainInfos = [
   {
-    rpc: "https://rpc-osmosis.keplr.app",
-    rest: "https://lcd-osmosis.keplr.app",
-    chainId: "osmosis-1",
-    chainName: "Osmosis",
+    rpc: "https://rpc-internal.dev-osmosis.zone",
+    rest: "https://lcd-internal.dev-osmosis.zone",
+    chainId: "osmo-relaunch",
+    chainName: "Osmosis-test",
     stakeCurrency: {
       coinDenom: "OSMO",
       coinMinimalDenom: "uosmo",
