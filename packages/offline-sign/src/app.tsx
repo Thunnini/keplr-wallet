@@ -32,13 +32,25 @@ export const AddressToAssets: {
     assets: [
       {
         denom: "uosmo",
-        amount: new Int("120932665000"),
+        amount: new Int("118165000000"),
       },
       {
         // ATOM
         denom:
           "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
-        amount: new Int("14043017390"),
+        amount: new Int("14043017000"),
+      },
+      {
+        // USDC
+        denom:
+          "ibc/D189335C6E4A68B513C10AB227BF1C1D38C746766278BA3EEB4FB14124F1D858",
+        amount: new Int("1025000000"),
+      },
+      {
+        // DAI
+        denom:
+          "ibc/0CD3A0285E1341859B5E86B6AB7682F023D03E97607CCC1DC95706411D866DF7",
+        amount: new Int("1155000000000000000000"),
       },
     ],
   },
@@ -48,11 +60,11 @@ export const AddressToAssets: {
         // USDC
         denom:
           "ibc/D189335C6E4A68B513C10AB227BF1C1D38C746766278BA3EEB4FB14124F1D858",
-        amount: new Int("900221517100"),
+        amount: new Int("900221000000"),
       },
       {
         denom: "uosmo",
-        amount: new Int("151099459400"),
+        amount: new Int("151086000000"),
       },
     ],
   },
@@ -62,13 +74,13 @@ export const AddressToAssets: {
         // USDC
         denom:
           "ibc/D189335C6E4A68B513C10AB227BF1C1D38C746766278BA3EEB4FB14124F1D858",
-        amount: new Int("85910430000"),
+        amount: new Int("86335000000"),
       },
       {
         // CMDX
         denom:
           "ibc/EA3E1640F9B1532AB129A571203A0B9F789A7F14BB66E350DCBFA18E1A1931F0",
-        amount: new Int("29000000000"),
+        amount: new Int("29044000000"),
       },
     ],
   },
@@ -76,14 +88,25 @@ export const AddressToAssets: {
     assets: [
       {
         denom: "uosmo",
-        amount: new Int("50869765110"),
+        amount: new Int("50937000000"),
       },
       {
         // WBTC
         denom:
           "ibc/D1542AA8762DB13087D8364F3EA6509FD6F009A34F00426AF9E4F9FA85CBBF1F",
         // Decimal is 8
-        amount: new Int("225109631"),
+        amount: new Int("225120000"),
+      },
+    ],
+  },
+  osmo1ux20lcw7et2j8kl8gfdep78lacew4dqqjp5dvp: {
+    assets: [
+      {
+        // WBTC
+        denom:
+          "ibc/D1542AA8762DB13087D8364F3EA6509FD6F009A34F00426AF9E4F9FA85CBBF1F",
+        // Decimal is 8
+        amount: new Int("33517000"),
       },
     ],
   },
