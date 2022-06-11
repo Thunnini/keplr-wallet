@@ -165,7 +165,7 @@ export const App: FunctionComponent = observer(() => {
                     {
                       denom: chainStore.getChain(chainId).stakeCurrency
                         .coinMinimalDenom,
-                      amount: "500000",
+                      amount: "0",
                     },
                   ],
                 },
