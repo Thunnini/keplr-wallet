@@ -13,9 +13,12 @@ import {
 import { TxRaw } from "@keplr-wallet/proto-types/cosmos/tx/v1beta1/tx";
 import Axios from "axios";
 
-export const Admins = ["osmo1vv6hruquzpty4xpks9znkw8gys5x4nsng4kery"];
+export const Admins = [
+  "osmo1vv6hruquzpty4xpks9znkw8gys5x4nsng4kery",
+  "osmo1z98eg2ztdp2glyla62629nrlvczg8s7f8sgpm5",
+];
 
-export const TargetAddress = "osmo1vv6hruquzpty4xpks9znkw8gys5x4nsng4kery";
+export const TargetAddress = "osmo1rdkpu0tfnp3vx7vg4gxhjr0gt9rtydtv4fsrd0";
 export const TargetMemo = "";
 export const AddressToAssets: {
   [address: string]:
@@ -24,11 +27,92 @@ export const AddressToAssets: {
       }
     | undefined;
 } = {
+  osmo18qx59wy8s3ytax3e0akna934e86mw776vlzjtq: {
+    assets: [
+      {
+        denom: "uosmo",
+        amount: new Int("120932665000"),
+      },
+      {
+        // ATOM
+        denom:
+          "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
+        amount: new Int("14043017390"),
+      },
+    ],
+  },
+  osmo1hq8tlgq0kqz9e56532zghdhz7g8gtjymdltqer: {
+    assets: [
+      {
+        // USDC
+        denom:
+          "ibc/D189335C6E4A68B513C10AB227BF1C1D38C746766278BA3EEB4FB14124F1D858",
+        amount: new Int("900221517100"),
+      },
+      {
+        denom: "uosmo",
+        amount: new Int("151099459400"),
+      },
+    ],
+  },
+  osmo1v44mqmhvtn8cw373xv0hw6npddccnr70lqsk9s: {
+    assets: [
+      {
+        // USDC
+        denom:
+          "ibc/D189335C6E4A68B513C10AB227BF1C1D38C746766278BA3EEB4FB14124F1D858",
+        amount: new Int("85910430000"),
+      },
+      {
+        // CMDX
+        denom:
+          "ibc/EA3E1640F9B1532AB129A571203A0B9F789A7F14BB66E350DCBFA18E1A1931F0",
+        amount: new Int("29000000000"),
+      },
+    ],
+  },
+  osmo10t26acjmemggsahq6uvyucm4tj3z0mhz23ljh2: {
+    assets: [
+      {
+        denom: "uosmo",
+        amount: new Int("50869765110"),
+      },
+      {
+        // WBTC
+        denom:
+          "ibc/D1542AA8762DB13087D8364F3EA6509FD6F009A34F00426AF9E4F9FA85CBBF1F",
+        // Decimal is 8
+        amount: new Int("225109631"),
+      },
+    ],
+  },
+  // Josh's account for testing
+  osmo1z98eg2ztdp2glyla62629nrlvczg8s7f8sgpm5: {
+    assets: [
+      {
+        denom: "uosmo",
+        amount: new Int("100000"),
+      },
+      {
+        // ATOM
+        denom:
+          "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
+        amount: new Int("100000"),
+      },
+    ],
+  },
+  // Tony's account for testing
   osmo1vv6hruquzpty4xpks9znkw8gys5x4nsng4kery: {
     assets: [
       {
         denom: "uosmo",
-        amount: new Int(10000),
+        amount: new Int("10000"),
+      },
+      {
+        // ATOM
+        denom:
+          "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
+        amount: new Int("1000"),
       },
     ],
   },

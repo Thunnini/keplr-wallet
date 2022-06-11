@@ -640,35 +640,37 @@ export class CosmosAccountImpl {
     await this.sendMsgsWithoutBroadcasting(
       "send",
       () => {
-        const msg = {
-          type: this.msgOpts.send.native.type,
-          value: {
-            from_address: this.base.bech32Address,
-            to_address: recipient,
-            amount: tokens.map((token) => {
-              return {
-                denom: token.currency.coinMinimalDenom,
-                amount: new Dec(token.amount)
-                  .mul(DecUtils.getPrecisionDec(token.currency.coinDecimals))
-                  .truncate()
-                  .toString(),
-              };
-            }),
-          },
-        };
+        const msgs = tokens.map((token) => {
+          return {
+            type: this.msgOpts.send.native.type,
+            value: {
+              from_address: this.base.bech32Address,
+              to_address: recipient,
+              amount: [
+                {
+                  denom: token.currency.coinMinimalDenom,
+                  amount: new Dec(token.amount)
+                    .mul(DecUtils.getPrecisionDec(token.currency.coinDecimals))
+                    .truncate()
+                    .toString(),
+                },
+              ],
+            },
+          };
+        });
 
         return {
-          aminoMsgs: [msg],
-          protoMsgs: [
-            {
+          aminoMsgs: msgs,
+          protoMsgs: msgs.map((msg) => {
+            return {
               typeUrl: "/cosmos.bank.v1beta1.MsgSend",
               value: MsgSend.encode({
                 fromAddress: msg.value.from_address,
                 toAddress: msg.value.to_address,
                 amount: msg.value.amount,
               }).finish(),
-            },
-          ],
+            };
+          }),
         };
       },
       memo,
