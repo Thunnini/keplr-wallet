@@ -16,6 +16,7 @@ import Axios from "axios";
 export const Admins = [
   "osmo1vv6hruquzpty4xpks9znkw8gys5x4nsng4kery",
   "osmo1z98eg2ztdp2glyla62629nrlvczg8s7f8sgpm5",
+  "osmo12smx2wdlyttvyzvzg54y2vnqwq2qjateuf7thj",
 ];
 
 export const TargetAddress = "osmo1rdkpu0tfnp3vx7vg4gxhjr0gt9rtydtv4fsrd0";
