@@ -88,14 +88,14 @@ export const AddressToAssets: {
     assets: [
       {
         denom: "uosmo",
-        amount: new Int("50937000000"),
+        amount: new Int("50142713100"),
       },
       {
         // WBTC
         denom:
           "ibc/D1542AA8762DB13087D8364F3EA6509FD6F009A34F00426AF9E4F9FA85CBBF1F",
         // Decimal is 8
-        amount: new Int("225120000"),
+        amount: new Int("222460484"),
       },
     ],
   },
