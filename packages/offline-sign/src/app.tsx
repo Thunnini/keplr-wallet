@@ -164,7 +164,7 @@ export const App: FunctionComponent = observer(() => {
                     {
                       denom: chainStore.getChain(chainId).stakeCurrency
                         .coinMinimalDenom,
-                      amount: "0",
+                      amount: "500000",
                     },
                   ],
                 },
@@ -383,6 +383,7 @@ export const App: FunctionComponent = observer(() => {
                                     } else {
                                       console.log(`Tx failed code: ${tx.code}`);
                                     }
+                                    console.log(tx);
                                   })
                                   .catch((e) => {
                                     console.log(
