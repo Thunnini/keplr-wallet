@@ -113,8 +113,13 @@ export const AddressToAssets: {
   osmo1jfxcl8ja3nnfjduqemptknz2j6nk6502zp3rte: {
     assets: [
       {
-        denom: "gamm/pool/561",
-        amount: new Int("777276479265592611176835"),
+        denom:
+          "ibc/0EF15DF2F02480ADE0BB6E85D9EBB5DAEA2836D3860E9F97F9AADE4F57A31AA0",
+        amount: new Int("194693479567923"),
+      },
+      {
+        denom: "uosmo",
+        amount: new Int("8450291281"),
       },
     ],
   },
