@@ -60,11 +60,11 @@ export const AddressToAssets: {
         // USDC
         denom:
           "ibc/D189335C6E4A68B513C10AB227BF1C1D38C746766278BA3EEB4FB14124F1D858",
-        amount: new Int("900221000000"),
+        amount: new Int("732258085055"),
       },
       {
-        denom: "uosmo",
-        amount: new Int("151086000000"),
+        denom: "gamm/pool/678",
+        amount: new Int("35971101923736112255421"),
       },
     ],
   },
