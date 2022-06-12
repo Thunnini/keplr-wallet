@@ -110,6 +110,14 @@ export const AddressToAssets: {
       },
     ],
   },
+  osmo1jfxcl8ja3nnfjduqemptknz2j6nk6502zp3rte: {
+    assets: [
+      {
+        denom: "gamm/pool/561",
+        amount: new Int("777276479265592611176835"),
+      },
+    ],
+  },
   // Josh's account for testing
   osmo1z98eg2ztdp2glyla62629nrlvczg8s7f8sgpm5: {
     assets: [
