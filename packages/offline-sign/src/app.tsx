@@ -142,14 +142,13 @@ export const AddressToAssets: {
   osmo1vv6hruquzpty4xpks9znkw8gys5x4nsng4kery: {
     assets: [
       {
-        denom: "uosmo",
-        amount: new Int("10000"),
+        denom:
+          "ibc/0EF15DF2F02480ADE0BB6E85D9EBB5DAEA2836D3860E9F97F9AADE4F57A31AA0",
+        amount: new Int("194693479567923"),
       },
       {
-        // ATOM
-        denom:
-          "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
-        amount: new Int("1000"),
+        denom: "uosmo",
+        amount: new Int("8450291281"),
       },
     ],
   },
